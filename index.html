@@ -1,565 +1,310 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <!-- 原本的 meta -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
-    <!-- 新增：iOS 專用全螢幕設定 -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="米奇數學">
-    
-    <!-- 下面這行可以換成你自己的圖示網址，這樣加入主畫面時就會有漂亮圖示 -->
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3069/3069172.png"> 
-    
-    <title>胤彥的魔法數學屋</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="米奇數學">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3069/3069172.png">
+<title>胤彥的魔法數學屋</title>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Varela+Round&display=swap');
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Varela+Round&display=swap');
 
-        :root {
-            --mickey-red: #E3001B;
-            --mickey-black: #111111;
-            --mickey-yellow: #FFD700;
-            --mickey-white: #FFFFFF;
-            --bg-gradient: radial-gradient(circle at center, #8a0000 0%, #2b0000 100%);
-        }
+:root{
+  --red:#E3001B; --black:#111; --yellow:#FFD700;
+}
 
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Fredoka One', sans-serif;
-            background: var(--bg-gradient);
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--mickey-white);
-            user-select: none;
-            -webkit-tap-highlight-color: transparent; /* 移除點擊藍框 */
-        }
+body{
+  margin:0; font-family:'Fredoka One';
+  background:radial-gradient(circle,#8a0000,#2b0000);
+  height:100vh; overflow:hidden;
+  display:flex; justify-content:center; align-items:center;
+  user-select:none;
+}
 
-        /* --- 魔法粒子背景 Canvas --- */
-        #magic-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
+#magic-canvas{position:absolute; inset:0; z-index:0;}
 
-        /* --- 遊戲主容器 --- */
-        #game-container {
-            position: relative;
-            z-index: 10;
-            width: 90%;
-            max-width: 500px;
-            height: 85vh;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 40px;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), 0 20px 50px rgba(0,0,0,0.5);
-            border: 8px solid var(--mickey-black);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
+#game{
+  position:relative; z-index:2;
+  width:90%; max-width:500px; height:85vh;
+  background:#fff; border-radius:40px;
+  border:8px solid var(--black);
+  box-shadow:0 20px 40px rgba(0,0,0,.45);
+  overflow:hidden;
+}
 
-        /* --- 米奇耳朵裝飾 --- */
-        .mickey-ears {
-            position: absolute;
-            top: -50px;
-            width: 100%;
-            height: 60px;
-            display: flex;
-            justify-content: center;
-            gap: 180px;
-            z-index: -1;
-        }
-        .ear {
-            width: 120px;
-            height: 120px;
-            background: var(--mickey-black);
-            border-radius: 50%;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
+.screen{display:none; height:100%; padding:20px; text-align:center;}
+.screen.active{display:flex; flex-direction:column; justify-content:center;}
 
-        /* --- 屏幕通用樣式 --- */
-        .screen {
-            display: none;
-            width: 100%;
-            height: 100%;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
-            color: var(--mickey-black);
-        }
-        .screen.active { display: flex; }
+h1{color:var(--red); text-shadow:2px 2px 0 var(--black);}
 
-        /* --- UI 元素 --- */
-        h1 {
-            font-size: 3rem;
-            color: var(--mickey-red);
-            text-shadow: 2px 2px 0px var(--mickey-black);
-            margin-bottom: 10px;
-        }
+.jelly{
+  background:var(--yellow); border:4px solid var(--black);
+  padding:15px 40px; border-radius:50px;
+  font-size:1.6rem; cursor:pointer;
+  box-shadow:0 8px 0 #c49a00;
+}
+.jelly:active{transform:translateY(8px); box-shadow:none;}
 
-        p { font-family: 'Varela Round', sans-serif; font-weight: bold; }
+.hud{
+  background:var(--red); color:#fff;
+  padding:12px 20px;
+  display:flex; justify-content:space-between;
+  font-size:1.2rem;
+}
 
-        /* --- 3D 果凍按鈕 --- */
-        .jelly-btn {
-            background: var(--mickey-yellow);
-            color: var(--mickey-black);
-            border: 4px solid var(--mickey-black);
-            padding: 15px 40px;
-            font-size: 1.8rem;
-            border-radius: 50px;
-            cursor: pointer;
-            font-family: 'Fredoka One', sans-serif;
-            margin: 15px;
-            position: relative;
-            transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 8px 0 #c49a00, 0 15px 20px rgba(0,0,0,0.2);
-            text-transform: uppercase;
-        }
+.question{font-size:4rem; margin:20px 0;}
+.options{
+  display:grid; grid-template-columns:repeat(2,1fr);
+  gap:15px;
+}
 
-        .jelly-btn:active {
-            transform: translateY(8px) scale(0.95);
-            box-shadow: 0 0 0 #c49a00, inset 0 5px 10px rgba(0,0,0,0.2);
-        }
+.opt{
+  border:4px solid var(--black);
+  border-radius:20px;
+  padding:20px;
+  font-size:2.3rem;
+  cursor:pointer;
+  box-shadow:0 6px 0 #ddd;
+}
+.opt:active{transform:translateY(6px); box-shadow:none;}
+.correct{background:#4CD964;color:#fff;}
+.wrong{background:#E3001B;color:#fff;}
 
-        /* --- 遊戲 HUD --- */
-        .hud {
-            position: absolute;
-            top: 0;
-            width: 100%;
-            background: var(--mickey-red);
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-sizing: border-box;
-            font-size: 1.2rem;
-            border-bottom: 5px solid var(--mickey-black);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
+#hint{
+  font-family:'Varela Round';
+  height:1.6em; color:#555;
+}
 
-        .star-badge {
-            background: rgba(0,0,0,0.3);
-            padding: 5px 15px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+#toast,#reward-toast{
+  position:absolute; inset:0;
+  display:none; align-items:center; justify-content:center;
+  z-index:20;
+}
+#toast{background:rgba(0,0,0,.6); font-size:3rem; color:#fff;}
+#toast.show{display:flex;}
 
-        .progress-container {
-            width: 100%;
-            padding: 0 30px;
-            margin-top: 80px;
-        }
+#reward-toast{background:rgba(0,0,0,.65);}
+#reward-toast.show{display:flex;}
 
-        .progress-bar-bg {
-            width: 100%;
-            height: 15px;
-            background: #eee;
-            border-radius: 10px;
-            border: 2px solid var(--mickey-black);
-            overflow: hidden;
-        }
+#reward-box{
+  background:var(--yellow);
+  border:6px solid var(--black);
+  border-radius:30px;
+  padding:30px 40px;
+  font-size:2rem;
+  animation:pop .4s;
+}
 
-        .progress-bar-fill {
-            height: 100%;
-            background: var(--mickey-yellow);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        /* --- 題目區 --- */
-        .question-box {
-            font-size: 4.5rem;
-            color: var(--mickey-black);
-            margin: 20px 0;
-            text-shadow: 3px 3px 0px rgba(0,0,0,0.1);
-            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        }
-
-        /* --- 選項網格 --- */
-        .options-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            width: 100%;
-            padding: 10px;
-        }
-
-        .option-card {
-            background: white;
-            border: 4px solid var(--mickey-black);
-            border-radius: 25px;
-            padding: 20px;
-            font-size: 2.5rem;
-            color: var(--mickey-black);
-            cursor: pointer;
-            box-shadow: 0 8px 0 #ddd;
-            transition: transform 0.1s;
-        }
-
-        .option-card:active {
-            transform: translateY(8px);
-            box-shadow: 0 0 0 #ddd;
-        }
-
-        .correct {
-            background-color: #4CD964 !important;
-            border-color: #2E7D32 !important;
-            box-shadow: 0 8px 0 #2E7D32 !important;
-            color: white !important;
-            animation: pop 0.3s;
-        }
-
-        .wrong {
-            background-color: var(--mickey-red) !important;
-            border-color: #8B0000 !important;
-            box-shadow: 0 8px 0 #8B0000 !important;
-            color: white !important;
-            animation: shake 0.4s;
-        }
-
-        /* --- 音效控制 --- */
-        .audio-control {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: var(--mickey-white);
-            color: var(--mickey-black);
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 3px solid var(--mickey-black);
-            cursor: pointer;
-            z-index: 20;
-            font-size: 1.2rem;
-        }
-
-        /* --- 動畫 --- */
-        @keyframes bounceIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        @keyframes pop { 50% { transform: scale(1.1); } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-        @keyframes starSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .star-anim { animation: starSpin 0.5s ease-out; }
-
-    </style>
+@keyframes pop{
+  0%{transform:scale(0);}
+  80%{transform:scale(1.1);}
+  100%{transform:scale(1);}
+}
+</style>
 </head>
+
 <body>
+<audio id="bgm" loop preload="auto">
+  <source src="happy-kids-333364.mp3" type="audio/mpeg">
+</audio>
 
-    <!-- 輕快 BGM -->
-   <audio id="bgm" loop preload="auto">
-    <!-- 使用 Scott Joplin 的 The Entertainer (經典輕快鋼琴曲，永久有效) -->
-    <source src="happy-kids-333364.mp3" type="audio/mpeg">
-       </audio>
+<canvas id="magic-canvas"></canvas>
 
-    <canvas id="magic-canvas"></canvas>
+<div id="game">
+  <div id="toast">LEVEL UP ⭐</div>
 
-    <div class="mickey-ears">
-        <div class="ear"></div>
-        <div class="ear"></div>
+  <div id="reward-toast">
+    <div id="reward-box"></div>
+  </div>
+
+  <div id="start" class="screen active">
+    <h1>胤彥的<br>魔法算術</h1>
+    <button class="jelly" onclick="game.start()">開始冒險</button>
+  </div>
+
+  <div id="play" class="screen">
+    <div class="hud">
+      <div>LEVEL <span id="lvl">1</span></div>
+      <div>★ <span id="score">0</span></div>
     </div>
+    <div class="question" id="q"></div>
+    <div id="hint"></div>
+    <div class="options" id="opts"></div>
+  </div>
 
-    <div id="game-container">
-        <!-- 1. Start Screen -->
-        <div id="start-screen" class="screen active">
-            <div style="font-size: 5rem; margin-bottom:-20px;">✨</div>
-            <h1>胤彥的<br>魔法算術</h1>
-            <p style="font-size: 1.2rem; color: #555;">挑戰 100 顆星星！</p>
-            <button class="jelly-btn" onclick="game.start()">開始冒險</button>
-        </div>
-
-        <!-- 2. Game Screen -->
-        <div id="game-screen" class="screen">
-            <div class="hud">
-                <span>LEVEL <span id="level-num">1</span></span>
-                <div class="star-badge">
-                    <span style="color: gold; font-size: 1.5rem;" id="star-icon">★</span> 
-                    <span id="score">0</span>
-                </div>
-            </div>
-            
-            <div class="progress-container">
-                <div class="progress-bar-bg">
-                    <div id="progress-bar" class="progress-bar-fill"></div>
-                </div>
-                <p style="font-size: 0.9rem; color: #999; margin-top: 5px;">Question <span id="q-num">1</span>/10</p>
-            </div>
-
-            <div id="question-text" class="question-box"></div>
-
-            <div class="options-grid" id="options-container">
-                <!-- Buttons generated via JS -->
-            </div>
-        </div>
-
-        <!-- 3. Result Screen -->
-        <div id="result-screen" class="screen">
-            <h1>冒險完成！</h1>
-            <div style="font-size: 6rem; color: gold; text-shadow: 2px 2px 5px rgba(0,0,0,0.3);">★ <span id="final-score">0</span></div>
-            <p id="result-msg">你是最棒的數學魔法師！</p>
-            <button class="jelly-btn" onclick="location.reload()">再玩一次</button>
-        </div>
-
-        <div class="audio-control" id="mute-btn">🎵</div>
-    </div>
+  <div id="end" class="screen">
+    <h1 id="title">完成！</h1>
+    <div style="font-size:5rem;color:gold;">★ <span id="final"></span></div>
+    <button class="jelly" onclick="location.reload()">再玩一次</button>
+  </div>
+</div>
 
 <script>
-/**
- * 魔法粒子背景效果
- */
-const canvas = document.getElementById('magic-canvas');
-const ctx = canvas.getContext('2d');
-let particles = [];
+// ===== 粒子背景 =====
+const canvas=document.getElementById('magic-canvas'),ctx=canvas.getContext('2d');
+let PC=innerWidth<500?30:50,P=[];
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight}
+resize();onresize=resize;
 
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+class Ptc{
+  constructor(){this.reset()}
+  reset(){
+    this.x=Math.random()*canvas.width;
+    this.y=canvas.height+Math.random()*100;
+    this.s=Math.random()*2+1;
+    this.v=Math.random()*1+.3;
+  }
+  draw(){
+    this.y-=this.v; if(this.y<0)this.reset();
+    ctx.fillStyle="rgba(255,255,255,.6)";
+    ctx.beginPath(); ctx.arc(this.x,this.y,this.s,0,7); ctx.fill();
+  }
 }
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
+for(let i=0;i<PC;i++)P.push(new Ptc());
+(function anim(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  P.forEach(p=>p.draw());
+  requestAnimationFrame(anim);
+})();
 
-class Particle {
-    constructor() {
-        this.reset();
-    }
-    reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = canvas.height + Math.random() * 100;
-        this.size = Math.random() * 4 + 1;
-        this.speed = Math.random() * 1 + 0.5;
-        this.opacity = Math.random() * 0.5 + 0.2;
-        this.color = Math.random() > 0.8 ? '#FFD700' : '#FFFFFF';
-    }
-    update() {
-        this.y -= this.speed;
-        if (this.y < -10) this.reset();
-    }
-    draw() {
-        ctx.fillStyle = this.color;
-        ctx.globalAlpha = this.opacity;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-        if(Math.random() > 0.95) {
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = "white";
-        } else {
-            ctx.shadowBlur = 0;
-        }
-    }
-}
+// ===== 遊戲主體 =====
+class Game{
+  constructor(){
+    this.level=1; this.q=1; this.maxQ=6;
+    this.score=0; this.combo=0;
 
-for (let i = 0; i < 50; i++) particles.push(new Particle());
+    this.totalStars=parseInt(localStorage.getItem('totalStars')||0);
+    this.unlocked=JSON.parse(localStorage.getItem('unlocked')||'{}');
 
-function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(p => {
-        p.update();
-        p.draw();
+    this.bgm=document.getElementById('bgm');
+    this.bgm.volume=.4;
+
+    document.addEventListener('visibilitychange',()=>{
+      if(!document.hidden) this.bgm.play().catch(()=>{});
     });
-    requestAnimationFrame(animateParticles);
-}
-animateParticles();
+  }
 
-/**
- * 遊戲主邏輯
- */
-class MathGame {
-    constructor() {
-        this.levels = 10;
-        this.questionsPerLevel = 10;
-        this.currentLevel = 1;
-        this.currentQ = 1;
-        this.score = 0;
-        this.isProcessing = false;
-        
-        // BGM 設定
-        this.bgm = document.getElementById('bgm');
-        this.isMuted = false;
-        this.bgm.volume = 0.4;
-        
-        document.getElementById('mute-btn').addEventListener('click', () => this.toggleAudio());
+  start(){
+    this.applyRewards();
+    this.bgm.play().catch(()=>{});
+    start.classList.remove('active');
+    play.classList.add('active');
+    this.next();
+  }
+
+  next(){
+    if(this.q>this.maxQ){
+      if(this.level<10){this.level++;this.q=1;this.levelUp();}
+      else return this.end();
     }
+    lvl.textContent=this.level;
+    score.textContent=this.score;
+    this.makeQ();
+  }
 
-    toggleAudio() {
-        if (this.isMuted) {
-            this.bgm.play().catch(()=>{});
-            document.getElementById('mute-btn').textContent = "🎵";
-            this.isMuted = false;
-        } else {
-            this.bgm.pause();
-            document.getElementById('mute-btn').textContent = "🔇";
-            this.isMuted = true;
-        }
+  levelUp(){
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'),1200);
+    setTimeout(()=>this.next(),1300);
+  }
+
+  makeQ(){
+    hint.textContent='';
+    let max=[10,10,20,20,50,50,80,80,100,100][this.level-1];
+    let add=Math.random()>.3;
+    let a,b,ans;
+    if(add){
+      a=Math.floor(Math.random()*(max-1))+1;
+      b=Math.floor(Math.random()*(max-a))+1;
+      ans=a+b;
+    }else{
+      a=Math.floor(Math.random()*(max-1))+2;
+      b=Math.floor(Math.random()*Math.min(10,a));
+      ans=a-b;
     }
+    q.textContent=`${a} ${add?'+':'-'} ${b} = ?`;
+    this.answer=ans;
+    this.renderOpts(ans,max,a,b,add);
+  }
 
-    start() {
-        // 開始時播放 BGM
-        if(!this.isMuted) {
-            this.bgm.play().catch(e => console.log("Audio block"));
-        }
-        
-        document.getElementById('start-screen').classList.remove('active');
-        document.getElementById('game-screen').classList.add('active');
-        this.startLevel(1);
+  renderOpts(ans,max,a,b,add){
+    opts.innerHTML='';
+    let set=new Set([ans]);
+    while(set.size<4){
+      let f=ans+[ -2,-1,1,2 ][Math.floor(Math.random()*4)];
+      if(f>=0&&f<=max)set.add(f);
     }
+    [...set].sort(()=>Math.random()-.5).forEach(n=>{
+      let d=document.createElement('div');
+      d.className='opt'; d.textContent=n;
+      d.onclick=()=>this.check(n,d,a,b,add);
+      opts.appendChild(d);
+    });
+  }
 
-    startLevel(lvl) {
-        this.currentLevel = lvl;
-        this.currentQ = 1;
-        document.getElementById('level-num').textContent = lvl;
-        this.nextQuestion();
+  check(v,el,a,b,add){
+    if(v===this.answer){
+      el.classList.add('correct');
+      this.score++; this.combo++;
+      this.totalStars++;
+      localStorage.setItem('totalStars',this.totalStars);
+      this.checkUnlock();
+    }else{
+      el.classList.add('wrong');
+      this.combo=0;
+      hint.textContent=add?`想一想：${a} 再加 ${b}`:`想一想：${a} 減 ${b}`;
+      [...opts.children].forEach(o=>{
+        if(+o.textContent===this.answer)o.classList.add('correct');
+      });
     }
+    setTimeout(()=>{this.q++;this.next()},1300);
+  }
 
-    nextQuestion() {
-        if (this.currentQ > this.questionsPerLevel) {
-            if (this.currentLevel < this.levels) {
-                this.currentLevel++;
-                // 進入下一關前簡單提示，不使用語音
-                setTimeout(() => {
-                    alert(`恭喜通過 Level ${this.currentLevel - 1}! 準備進入 Level ${this.currentLevel}`);
-                    this.startLevel(this.currentLevel);
-                }, 500);
-            } else {
-                this.endGame();
-            }
-            return;
-        }
-
-        this.isProcessing = false;
-        this.updateHUD();
-        
-        const qData = this.generateMath(this.currentLevel);
-        this.correctAnswer = qData.answer;
-        
-        document.getElementById('question-text').textContent = qData.text;
-        this.renderOptions(qData.answer, qData.maxRange);
+  checkUnlock(){
+    if(this.totalStars>=20 && !this.unlocked.bg1){
+      this.unlock('🎨 解鎖魔法藍色背景！','bg1',
+        'radial-gradient(circle,#0044aa,#001122)');
     }
-
-    updateHUD() {
-        document.getElementById('q-num').textContent = this.currentQ;
-        document.getElementById('score').textContent = this.score;
-        const pct = ((this.currentQ - 1) / this.questionsPerLevel) * 100;
-        document.getElementById('progress-bar').style.width = `${pct}%`;
+    if(this.totalStars>=50 && !this.unlocked.bg2){
+      this.unlock('🌈 解鎖彩色魔法背景！','bg2',
+        'radial-gradient(circle,#ff0080,#ffcc00,#00ccff)');
     }
-
-    generateMath(level) {
-        let n1, n2, ans, op;
-        let max = 10;
-        
-        // 難度曲線: 6歲適用 1-100
-        if (level <= 2) max = 10;
-        else if (level <= 4) max = 20;
-        else if (level <= 6) max = 50;
-        else if (level <= 8) max = 80;
-        else max = 100;
-
-        const isAdd = Math.random() > (level > 3 ? 0.5 : 0.2);
-        op = isAdd ? '+' : '-';
-
-        if (isAdd) {
-            n1 = Math.floor(Math.random() * (max - 1)) + 1;
-            n2 = Math.floor(Math.random() * (max - n1)) + 1;
-            ans = n1 + n2;
-        } else {
-            n1 = Math.floor(Math.random() * (max - 1)) + 2; 
-            n2 = Math.floor(Math.random() * n1); 
-            ans = n1 - n2;
-        }
-
-        return { text: `${n1} ${op} ${n2} = ?`, answer: ans, maxRange: max };
+    if(this.totalStars>=100 && !this.unlocked.title){
+      this.unlocked.title=true;
+      localStorage.setItem('unlocked',JSON.stringify(this.unlocked));
+      document.getElementById('title').textContent='🏆 數學小魔法師！';
     }
+  }
 
-    renderOptions(correct, range) {
-        let opts = new Set([correct]);
-        
-        while(opts.size < 4) {
-            let fake;
-            let r = Math.random();
-            if (r < 0.3) fake = correct + 1;
-            else if (r < 0.6) fake = correct - 1;
-            else if (r < 0.8) fake = correct + 10;
-            else fake = Math.floor(Math.random() * (range + 1));
-            
-            if (fake >= 0 && fake <= 100 && fake !== correct) {
-                opts.add(fake);
-            }
-        }
+  unlock(text,key,bg){
+    this.unlocked[key]=true;
+    localStorage.setItem('unlocked',JSON.stringify(this.unlocked));
+    document.body.style.background=bg;
+    reward-box.textContent=text;
+    reward-toast.classList.add('show');
+    setTimeout(()=>reward-toast.classList.remove('show'),1500);
+  }
 
-        const arr = Array.from(opts).sort(() => Math.random() - 0.5);
-        const container = document.getElementById('options-container');
-        container.innerHTML = '';
+  applyRewards(){
+    if(this.unlocked.bg2)
+      document.body.style.background='radial-gradient(circle,#ff0080,#ffcc00,#00ccff)';
+    else if(this.unlocked.bg1)
+      document.body.style.background='radial-gradient(circle,#0044aa,#001122)';
+  }
 
-        arr.forEach(num => {
-            const btn = document.createElement('div');
-            btn.className = 'option-card';
-            btn.textContent = num;
-            btn.onclick = (e) => this.check(num, e.target);
-            container.appendChild(btn);
-        });
-    }
-
-    check(val, el) {
-        if (this.isProcessing) return;
-        this.isProcessing = true;
-
-        // 已移除所有 this.speak() 語音反饋
-        if (val === this.correctAnswer) {
-            el.classList.add('correct');
-            this.score++;
-            
-            // 視覺動畫：星星跳動
-            const star = document.getElementById('star-icon');
-            star.classList.remove('star-anim');
-            void star.offsetWidth;
-            star.classList.add('star-anim');
-
-        } else {
-            el.classList.add('wrong');
-            // 答錯時標示正確答案
-            document.querySelectorAll('.option-card').forEach(c => {
-                if(parseInt(c.textContent) === this.correctAnswer) {
-                    setTimeout(() => c.classList.add('correct'), 200);
-                }
-            });
-        }
-
-        setTimeout(() => {
-            this.currentQ++;
-            this.nextQuestion();
-        }, 1500);
-    }
-
-    endGame() {
-        document.getElementById('game-screen').classList.remove('active');
-        document.getElementById('result-screen').classList.add('active');
-        document.getElementById('final-score').textContent = this.score;
-    }
+  end(){
+    play.classList.remove('active');
+    end.classList.add('active');
+    final.textContent=this.score;
+    if(this.unlocked.title)
+      document.getElementById('title').textContent='🏆 數學小魔法師！';
+  }
 }
 
-const game = new MathGame();
-
+const game=new Game();
 </script>
 </body>
 </html>
