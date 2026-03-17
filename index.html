@@ -1,16 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <!-- 原本的 meta -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
-    <!-- 新增：iOS 專用全螢幕設定 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="米奇數學">
-    
-    <!-- 下面這行可以換成你自己的圖示網址，這樣加入主畫面時就會有漂亮圖示 -->
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3069/3069172.png"> 
     
     <title>胤彥的魔法數學屋</title>
@@ -38,10 +33,9 @@
             align-items: center;
             color: var(--mickey-white);
             user-select: none;
-            -webkit-tap-highlight-color: transparent; /* 移除點擊藍框 */
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- 魔法粒子背景 Canvas --- */
         #magic-canvas {
             position: absolute;
             top: 0;
@@ -52,7 +46,6 @@
             pointer-events: none;
         }
 
-        /* --- 遊戲主容器 --- */
         #game-container {
             position: relative;
             z-index: 10;
@@ -70,7 +63,6 @@
             overflow: hidden;
         }
 
-        /* --- 米奇耳朵裝飾 --- */
         .mickey-ears {
             position: absolute;
             top: -50px;
@@ -89,7 +81,6 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        /* --- 屏幕通用樣式 --- */
         .screen {
             display: none;
             width: 100%;
@@ -104,7 +95,6 @@
         }
         .screen.active { display: flex; }
 
-        /* --- UI 元素 --- */
         h1 {
             font-size: 3rem;
             color: var(--mickey-red);
@@ -114,7 +104,6 @@
 
         p { font-family: 'Varela Round', sans-serif; font-weight: bold; }
 
-        /* --- 3D 果凍按鈕 --- */
         .jelly-btn {
             background: var(--mickey-yellow);
             color: var(--mickey-black);
@@ -136,7 +125,6 @@
             box-shadow: 0 0 0 #c49a00, inset 0 5px 10px rgba(0,0,0,0.2);
         }
 
-        /* --- 遊戲 HUD --- */
         .hud {
             position: absolute;
             top: 0;
@@ -150,7 +138,7 @@
             box-sizing: border-box;
             font-size: 1.2rem;
             border-bottom: 5px solid var(--mickey-black);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 15;
         }
 
         .star-badge {
@@ -184,16 +172,28 @@
             transition: width 0.3s ease;
         }
 
-        /* --- 題目區 --- */
+        /* --- 連擊 Combo 顯示 --- */
+        #combo-text {
+            position: absolute;
+            top: 110px;
+            right: 30px;
+            font-size: 2rem;
+            color: var(--mickey-red);
+            font-weight: bold;
+            transform: rotate(15deg) scale(0);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            text-shadow: 2px 2px 0 #fff;
+        }
+        #combo-text.show { transform: rotate(15deg) scale(1.2); }
+
         .question-box {
             font-size: 4.5rem;
             color: var(--mickey-black);
             margin: 20px 0;
             text-shadow: 3px 3px 0px rgba(0,0,0,0.1);
-            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
 
-        /* --- 選項網格 --- */
         .options-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -212,6 +212,7 @@
             cursor: pointer;
             box-shadow: 0 8px 0 #ddd;
             transition: transform 0.1s;
+            touch-action: manipulation;
         }
 
         .option-card:active {
@@ -219,23 +220,9 @@
             box-shadow: 0 0 0 #ddd;
         }
 
-        .correct {
-            background-color: #4CD964 !important;
-            border-color: #2E7D32 !important;
-            box-shadow: 0 8px 0 #2E7D32 !important;
-            color: white !important;
-            animation: pop 0.3s;
-        }
+        .correct { background-color: #4CD964 !important; border-color: #2E7D32 !important; color: white !important; animation: pop 0.3s; }
+        .wrong { background-color: var(--mickey-red) !important; border-color: #8B0000 !important; color: white !important; animation: shake 0.4s; }
 
-        .wrong {
-            background-color: var(--mickey-red) !important;
-            border-color: #8B0000 !important;
-            box-shadow: 0 8px 0 #8B0000 !important;
-            color: white !important;
-            animation: shake 0.4s;
-        }
-
-        /* --- 音效控制 --- */
         .audio-control {
             position: absolute;
             bottom: 20px;
@@ -251,26 +238,20 @@
             border: 3px solid var(--mickey-black);
             cursor: pointer;
             z-index: 20;
-            font-size: 1.2rem;
         }
 
-        /* --- 動畫 --- */
-        @keyframes bounceIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
         @keyframes pop { 50% { transform: scale(1.1); } }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
         @keyframes starSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
         .star-anim { animation: starSpin 0.5s ease-out; }
 
     </style>
 </head>
 <body>
 
-    <!-- 輕快 BGM -->
-   <audio id="bgm" loop preload="auto">
-    <!-- 使用 Scott Joplin 的 The Entertainer (經典輕快鋼琴曲，永久有效) -->
-    <source src="happy-kids-333364.mp3" type="audio/mpeg">
-       </audio>
+    <audio id="bgm" loop preload="auto">
+        <source src="happy-kids-333364.mp3" type="audio/mpeg">
+    </audio>
 
     <canvas id="magic-canvas"></canvas>
 
@@ -280,15 +261,15 @@
     </div>
 
     <div id="game-container">
-        <!-- 1. Start Screen -->
+        <div id="combo-text">COMBO x0</div>
+
         <div id="start-screen" class="screen active">
             <div style="font-size: 5rem; margin-bottom:-20px;">✨</div>
             <h1>胤彥的<br>魔法算術</h1>
-            <p style="font-size: 1.2rem; color: #555;">挑戰 100 顆星星！</p>
+            <p style="font-size: 1.2rem; color: #555;">挑戰最高等級頭銜！</p>
             <button class="jelly-btn" onclick="game.start()">開始冒險</button>
         </div>
 
-        <!-- 2. Game Screen -->
         <div id="game-screen" class="screen">
             <div class="hud">
                 <span>LEVEL <span id="level-num">1</span></span>
@@ -306,16 +287,13 @@
             </div>
 
             <div id="question-text" class="question-box"></div>
-
-            <div class="options-grid" id="options-container">
-                <!-- Buttons generated via JS -->
-            </div>
+            <div class="options-grid" id="options-container"></div>
         </div>
 
-        <!-- 3. Result Screen -->
         <div id="result-screen" class="screen">
-            <h1>冒險完成！</h1>
+            <h1 id="result-title">冒險完成！</h1>
             <div style="font-size: 6rem; color: gold; text-shadow: 2px 2px 5px rgba(0,0,0,0.3);">★ <span id="final-score">0</span></div>
+            <p id="result-rank" style="font-size: 1.8rem; color: var(--mickey-red); margin: 10px 0;"></p>
             <p id="result-msg">你是最棒的數學魔法師！</p>
             <button class="jelly-btn" onclick="location.reload()">再玩一次</button>
         </div>
@@ -324,24 +302,15 @@
     </div>
 
 <script>
-/**
- * 魔法粒子背景效果
- */
+/** 粒子背景 (維持原樣) **/
 const canvas = document.getElementById('magic-canvas');
 const ctx = canvas.getContext('2d');
 let particles = [];
-
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
-
 class Particle {
-    constructor() {
-        this.reset();
-    }
+    constructor() { this.reset(); }
     reset() {
         this.x = Math.random() * canvas.width;
         this.y = canvas.height + Math.random() * 100;
@@ -350,41 +319,22 @@ class Particle {
         this.opacity = Math.random() * 0.5 + 0.2;
         this.color = Math.random() > 0.8 ? '#FFD700' : '#FFFFFF';
     }
-    update() {
-        this.y -= this.speed;
-        if (this.y < -10) this.reset();
-    }
+    update() { this.y -= this.speed; if (this.y < -10) this.reset(); }
     draw() {
-        ctx.fillStyle = this.color;
-        ctx.globalAlpha = this.opacity;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillStyle = this.color; ctx.globalAlpha = this.opacity;
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
         ctx.globalAlpha = 1;
-        if(Math.random() > 0.95) {
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = "white";
-        } else {
-            ctx.shadowBlur = 0;
-        }
     }
 }
-
 for (let i = 0; i < 50; i++) particles.push(new Particle());
-
 function animateParticles() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(p => {
-        p.update();
-        p.draw();
-    });
+    particles.forEach(p => { p.update(); p.draw(); });
     requestAnimationFrame(animateParticles);
 }
 animateParticles();
 
-/**
- * 遊戲主邏輯
- */
+/** 遊戲主邏輯 **/
 class MathGame {
     constructor() {
         this.levels = 10;
@@ -392,13 +342,11 @@ class MathGame {
         this.currentLevel = 1;
         this.currentQ = 1;
         this.score = 0;
+        this.combo = 0; // 新增：連擊計數
         this.isProcessing = false;
-        
-        // BGM 設定
         this.bgm = document.getElementById('bgm');
         this.isMuted = false;
         this.bgm.volume = 0.4;
-        
         document.getElementById('mute-btn').addEventListener('click', () => this.toggleAudio());
     }
 
@@ -415,11 +363,7 @@ class MathGame {
     }
 
     start() {
-        // 開始時播放 BGM
-        if(!this.isMuted) {
-            this.bgm.play().catch(e => console.log("Audio block"));
-        }
-        
+        if(!this.isMuted) this.bgm.play().catch(e => console.log("Audio block"));
         document.getElementById('start-screen').classList.remove('active');
         document.getElementById('game-screen').classList.add('active');
         this.startLevel(1);
@@ -436,9 +380,8 @@ class MathGame {
         if (this.currentQ > this.questionsPerLevel) {
             if (this.currentLevel < this.levels) {
                 this.currentLevel++;
-                // 進入下一關前簡單提示，不使用語音
                 setTimeout(() => {
-                    alert(`恭喜通過 Level ${this.currentLevel - 1}! 準備進入 Level ${this.currentLevel}`);
+                    alert(`太強了！進入第 ${this.currentLevel} 關！`);
                     this.startLevel(this.currentLevel);
                 }, 500);
             } else {
@@ -446,13 +389,10 @@ class MathGame {
             }
             return;
         }
-
         this.isProcessing = false;
         this.updateHUD();
-        
         const qData = this.generateMath(this.currentLevel);
         this.correctAnswer = qData.answer;
-        
         document.getElementById('question-text').textContent = qData.text;
         this.renderOptions(qData.answer, qData.maxRange);
     }
@@ -462,13 +402,19 @@ class MathGame {
         document.getElementById('score').textContent = this.score;
         const pct = ((this.currentQ - 1) / this.questionsPerLevel) * 100;
         document.getElementById('progress-bar').style.width = `${pct}%`;
+        
+        // 更新連擊 UI
+        const comboEl = document.getElementById('combo-text');
+        if (this.combo > 1) {
+            comboEl.textContent = `COMBO x${this.combo}`;
+            comboEl.classList.add('show');
+        } else {
+            comboEl.classList.remove('show');
+        }
     }
 
     generateMath(level) {
-        let n1, n2, ans, op;
-        let max = 10;
-        
-        // 難度曲線: 6歲適用 1-100
+        let n1, n2, ans, max = 10;
         if (level <= 2) max = 10;
         else if (level <= 4) max = 20;
         else if (level <= 6) max = 50;
@@ -476,41 +422,31 @@ class MathGame {
         else max = 100;
 
         const isAdd = Math.random() > (level > 3 ? 0.5 : 0.2);
-        op = isAdd ? '+' : '-';
-
         if (isAdd) {
             n1 = Math.floor(Math.random() * (max - 1)) + 1;
             n2 = Math.floor(Math.random() * (max - n1)) + 1;
             ans = n1 + n2;
         } else {
-            n1 = Math.floor(Math.random() * (max - 1)) + 2; 
-            n2 = Math.floor(Math.random() * n1); 
+            n1 = Math.floor(Math.random() * (max - 1)) + 2;
+            n2 = Math.floor(Math.random() * n1);
             ans = n1 - n2;
         }
-
-        return { text: `${n1} ${op} ${n2} = ?`, answer: ans, maxRange: max };
+        return { text: `${n1} ${isAdd ? '+' : '-'} ${n2} = ?`, answer: ans, maxRange: max };
     }
 
     renderOptions(correct, range) {
         let opts = new Set([correct]);
-        
         while(opts.size < 4) {
-            let fake;
-            let r = Math.random();
+            let fake, r = Math.random();
             if (r < 0.3) fake = correct + 1;
             else if (r < 0.6) fake = correct - 1;
             else if (r < 0.8) fake = correct + 10;
             else fake = Math.floor(Math.random() * (range + 1));
-            
-            if (fake >= 0 && fake <= 100 && fake !== correct) {
-                opts.add(fake);
-            }
+            if (fake >= 0 && fake <= 100 && fake !== correct) opts.add(fake);
         }
-
         const arr = Array.from(opts).sort(() => Math.random() - 0.5);
         const container = document.getElementById('options-container');
         container.innerHTML = '';
-
         arr.forEach(num => {
             const btn = document.createElement('div');
             btn.className = 'option-card';
@@ -524,42 +460,53 @@ class MathGame {
         if (this.isProcessing) return;
         this.isProcessing = true;
 
-        // 已移除所有 this.speak() 語音反饋
         if (val === this.correctAnswer) {
             el.classList.add('correct');
             this.score++;
-            
-            // 視覺動畫：星星跳動
+            this.combo++; // 連擊增加
             const star = document.getElementById('star-icon');
             star.classList.remove('star-anim');
             void star.offsetWidth;
             star.classList.add('star-anim');
-
         } else {
             el.classList.add('wrong');
-            // 答錯時標示正確答案
+            this.combo = 0; // 連擊中斷
             document.querySelectorAll('.option-card').forEach(c => {
                 if(parseInt(c.textContent) === this.correctAnswer) {
                     setTimeout(() => c.classList.add('correct'), 200);
                 }
             });
         }
-
-        setTimeout(() => {
-            this.currentQ++;
-            this.nextQuestion();
-        }, 1500);
+        this.updateHUD();
+        setTimeout(() => { this.currentQ++; this.nextQuestion(); }, 1200);
     }
 
     endGame() {
         document.getElementById('game-screen').classList.remove('active');
         document.getElementById('result-screen').classList.add('active');
         document.getElementById('final-score').textContent = this.score;
+        
+        // 評語系統
+        const rankEl = document.getElementById('result-rank');
+        const msgEl = document.getElementById('result-msg');
+        const total = this.levels * this.questionsPerLevel; // 總分 100
+        
+        if (this.score >= 95) {
+            rankEl.textContent = "🏆 傳說級數學大師";
+            msgEl.textContent = "簡直太不可思議了！你是數字的主人！";
+        } else if (this.score >= 80) {
+            rankEl.textContent = "✨ 領袖級魔法師";
+            msgEl.textContent = "表現非常出色！胤彥為你感到驕傲！";
+        } else if (this.score >= 60) {
+            rankEl.textContent = "🧙‍♂️ 見習魔法師";
+            msgEl.textContent = "不錯喔！再加把勁就能掌握高級魔法了。";
+        } else {
+            rankEl.textContent = "🌱 數學小學徒";
+            msgEl.textContent = "冒險才剛開始，繼續努力練習吧！";
+        }
     }
 }
-
 const game = new MathGame();
-
 </script>
 </body>
 </html>
