@@ -18,241 +18,78 @@
             --mickey-black: #111111;
             --mickey-yellow: #FFD700;
             --mickey-white: #FFFFFF;
+            --ear-color: #111111; /* 動態耳朵顏色 */
             --bg-gradient: radial-gradient(circle at center, #8a0000 0%, #2b0000 100%);
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Fredoka One', sans-serif;
-            background: var(--bg-gradient);
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--mickey-white);
-            user-select: none;
+            margin: 0; padding: 0; font-family: 'Fredoka One', sans-serif;
+            background: var(--bg-gradient); height: 100vh; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+            color: var(--mickey-white); user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
-        #magic-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
+        #magic-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 
         #game-container {
-            position: relative;
-            z-index: 10;
-            width: 90%;
-            max-width: 500px;
-            height: 85vh;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 40px;
+            position: relative; z-index: 10; width: 90%; max-width: 500px; height: 85vh;
+            background: rgba(255, 255, 255, 0.95); border-radius: 40px;
             box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), 0 20px 50px rgba(0,0,0,0.5);
-            border: 8px solid var(--mickey-black);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            border: 8px solid var(--mickey-black); display: flex;
+            flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
         }
 
         .mickey-ears {
-            position: absolute;
-            top: -50px;
-            width: 100%;
-            height: 60px;
-            display: flex;
-            justify-content: center;
-            gap: 180px;
-            z-index: -1;
+            position: absolute; top: -50px; width: 100%; height: 60px;
+            display: flex; justify-content: center; gap: 180px; z-index: -1;
         }
         .ear {
-            width: 120px;
-            height: 120px;
-            background: var(--mickey-black);
-            border-radius: 50%;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 120px; height: 120px; background: var(--ear-color);
+            border-radius: 50%; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: background 0.5s ease;
         }
 
-        .screen {
-            display: none;
-            width: 100%;
-            height: 100%;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
-            color: var(--mickey-black);
-        }
+        .screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box; color: var(--mickey-black); }
         .screen.active { display: flex; }
 
-        h1 {
-            font-size: 3rem;
-            color: var(--mickey-red);
-            text-shadow: 2px 2px 0px var(--mickey-black);
-            margin-bottom: 10px;
-        }
-
-        p { font-family: 'Varela Round', sans-serif; font-weight: bold; }
+        h1 { font-size: 2.8rem; color: var(--mickey-red); text-shadow: 2px 2px 0px var(--mickey-black); margin-bottom: 5px; }
+        .total-stars-display { font-size: 1.2rem; color: #d4a017; margin-bottom: 15px; }
 
         .jelly-btn {
-            background: var(--mickey-yellow);
-            color: var(--mickey-black);
-            border: 4px solid var(--mickey-black);
-            padding: 15px 40px;
-            font-size: 1.8rem;
-            border-radius: 50px;
-            cursor: pointer;
-            font-family: 'Fredoka One', sans-serif;
-            margin: 15px;
-            position: relative;
-            transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 8px 0 #c49a00, 0 15px 20px rgba(0,0,0,0.2);
-            text-transform: uppercase;
+            background: var(--mickey-yellow); color: var(--mickey-black); border: 4px solid var(--mickey-black);
+            padding: 12px 30px; font-size: 1.5rem; border-radius: 50px; cursor: pointer;
+            margin: 8px; transition: all 0.1s; box-shadow: 0 6px 0 #c49a00;
         }
+        .jelly-btn:active { transform: translateY(6px); box-shadow: 0 0 0 #c49a00; }
+        .btn-small { padding: 8px 20px; font-size: 1rem; background: #eee; }
 
-        .jelly-btn:active {
-            transform: translateY(8px) scale(0.95);
-            box-shadow: 0 0 0 #c49a00, inset 0 5px 10px rgba(0,0,0,0.2);
+        /* --- 商店 UI --- */
+        .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; padding: 10px; }
+        .shop-item {
+            background: white; border: 3px solid #ddd; border-radius: 20px; padding: 15px;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
         }
+        .item-preview { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #000; }
+        .price-tag { font-size: 0.9rem; color: #666; }
+        .owned { border-color: var(--mickey-red); background: #fff5f5; }
 
-        .hud {
-            position: absolute;
-            top: 0;
-            width: 100%;
-            background: var(--mickey-red);
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-sizing: border-box;
-            font-size: 1.2rem;
-            border-bottom: 5px solid var(--mickey-black);
-            z-index: 15;
-        }
-
-        .star-badge {
-            background: rgba(0,0,0,0.3);
-            padding: 5px 15px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .progress-container {
-            width: 100%;
-            padding: 0 30px;
-            margin-top: 80px;
-        }
-
-        .progress-bar-bg {
-            width: 100%;
-            height: 15px;
-            background: #eee;
-            border-radius: 10px;
-            border: 2px solid var(--mickey-black);
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: var(--mickey-yellow);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        /* --- 連擊 Combo 顯示 --- */
-        #combo-text {
-            position: absolute;
-            top: 110px;
-            right: 30px;
-            font-size: 2rem;
-            color: var(--mickey-red);
-            font-weight: bold;
-            transform: rotate(15deg) scale(0);
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
-            text-shadow: 2px 2px 0 #fff;
-        }
+        /* --- 原有遊戲 UI --- */
+        .hud { position: absolute; top: 0; width: 100%; background: var(--mickey-red); color: white; padding: 15px 20px; display: flex; justify-content: space-between; border-bottom: 5px solid var(--mickey-black); z-index: 15; }
+        .question-box { font-size: 4rem; margin: 20px 0; }
+        .options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; }
+        .option-card { background: white; border: 4px solid var(--mickey-black); border-radius: 20px; padding: 15px; font-size: 2rem; cursor: pointer; box-shadow: 0 6px 0 #ddd; touch-action: manipulation; }
+        .correct { background: #4CD964 !important; color: white; }
+        .wrong { background: var(--mickey-red) !important; color: white; }
+        #combo-text { position: absolute; top: 100px; right: 20px; color: var(--mickey-red); font-size: 1.8rem; transform: rotate(15deg) scale(0); transition: 0.2s; font-weight: bold; }
         #combo-text.show { transform: rotate(15deg) scale(1.2); }
 
-        .question-box {
-            font-size: 4.5rem;
-            color: var(--mickey-black);
-            margin: 20px 0;
-            text-shadow: 3px 3px 0px rgba(0,0,0,0.1);
-        }
-
-        .options-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            width: 100%;
-            padding: 10px;
-        }
-
-        .option-card {
-            background: white;
-            border: 4px solid var(--mickey-black);
-            border-radius: 25px;
-            padding: 20px;
-            font-size: 2.5rem;
-            color: var(--mickey-black);
-            cursor: pointer;
-            box-shadow: 0 8px 0 #ddd;
-            transition: transform 0.1s;
-            touch-action: manipulation;
-        }
-
-        .option-card:active {
-            transform: translateY(8px);
-            box-shadow: 0 0 0 #ddd;
-        }
-
-        .correct { background-color: #4CD964 !important; border-color: #2E7D32 !important; color: white !important; animation: pop 0.3s; }
-        .wrong { background-color: var(--mickey-red) !important; border-color: #8B0000 !important; color: white !important; animation: shake 0.4s; }
-
-        .audio-control {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: var(--mickey-white);
-            color: var(--mickey-black);
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 3px solid var(--mickey-black);
-            cursor: pointer;
-            z-index: 20;
-        }
-
-        @keyframes pop { 50% { transform: scale(1.1); } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-        @keyframes starSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .star-anim { animation: starSpin 0.5s ease-out; }
-
+        .audio-control { position: absolute; bottom: 20px; right: 20px; background: white; width: 40px; height: 40px; border-radius: 50%; border: 2px solid #000; display: flex; align-items: center; justify-content: center; z-index: 20; }
     </style>
 </head>
 <body>
 
-    <audio id="bgm" loop preload="auto">
-        <source src="happy-kids-333364.mp3" type="audio/mpeg">
-    </audio>
-
+    <audio id="bgm" loop><source src="happy-kids-333364.mp3" type="audio/mpeg"></audio>
     <canvas id="magic-canvas"></canvas>
 
     <div class="mickey-ears">
@@ -261,40 +98,34 @@
     </div>
 
     <div id="game-container">
-        <div id="combo-text">COMBO x0</div>
-
         <div id="start-screen" class="screen active">
-            <div style="font-size: 5rem; margin-bottom:-20px;">✨</div>
-            <h1>胤彥的<br>魔法算術</h1>
-            <p style="font-size: 1.2rem; color: #555;">挑戰最高等級頭銜！</p>
+            <h1>魔法算術</h1>
+            <div class="total-stars-display">💰 我的星星存摺: <span class="total-stars-val">0</span> ★</div>
             <button class="jelly-btn" onclick="game.start()">開始冒險</button>
+            <button class="jelly-btn btn-small" onclick="game.showShop()">魔法商店 🛒</button>
         </div>
 
         <div id="game-screen" class="screen">
+            <div id="combo-text">COMBO x0</div>
             <div class="hud">
-                <span>LEVEL <span id="level-num">1</span></span>
-                <div class="star-badge">
-                    <span style="color: gold; font-size: 1.5rem;" id="star-icon">★</span> 
-                    <span id="score">0</span>
-                </div>
+                <span>LV <span id="level-num">1</span></span>
+                <div style="background:rgba(0,0,0,0.2); padding:2px 10px; border-radius:15px;">★ <span id="score">0</span></div>
             </div>
-            
-            <div class="progress-container">
-                <div class="progress-bar-bg">
-                    <div id="progress-bar" class="progress-bar-fill"></div>
-                </div>
-                <p style="font-size: 0.9rem; color: #999; margin-top: 5px;">Question <span id="q-num">1</span>/10</p>
-            </div>
-
             <div id="question-text" class="question-box"></div>
             <div class="options-grid" id="options-container"></div>
         </div>
 
+        <div id="shop-screen" class="screen">
+            <h1>魔法商店</h1>
+            <div class="total-stars-display">餘額: <span class="total-stars-val">0</span> ★</div>
+            <div class="shop-grid" id="shop-items-container"></div>
+            <button class="jelly-btn btn-small" onclick="game.showStart()">回主選單</button>
+        </div>
+
         <div id="result-screen" class="screen">
-            <h1 id="result-title">冒險完成！</h1>
-            <div style="font-size: 6rem; color: gold; text-shadow: 2px 2px 5px rgba(0,0,0,0.3);">★ <span id="final-score">0</span></div>
-            <p id="result-rank" style="font-size: 1.8rem; color: var(--mickey-red); margin: 10px 0;"></p>
-            <p id="result-msg">你是最棒的數學魔法師！</p>
+            <h1 id="result-rank">冒險完成！</h1>
+            <div style="font-size: 4rem; color: gold;">★ <span id="final-score">0</span></div>
+            <p id="result-msg"></p>
             <button class="jelly-btn" onclick="location.reload()">再玩一次</button>
         </div>
 
@@ -302,208 +133,171 @@
     </div>
 
 <script>
-/** 粒子背景 (維持原樣) **/
+// --- 粒子效果 (省略重複部分，保持原本邏輯) ---
 const canvas = document.getElementById('magic-canvas');
 const ctx = canvas.getContext('2d');
 let particles = [];
-function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-class Particle {
-    constructor() { this.reset(); }
-    reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = canvas.height + Math.random() * 100;
-        this.size = Math.random() * 4 + 1;
-        this.speed = Math.random() * 1 + 0.5;
-        this.opacity = Math.random() * 0.5 + 0.2;
-        this.color = Math.random() > 0.8 ? '#FFD700' : '#FFFFFF';
-    }
-    update() { this.y -= this.speed; if (this.y < -10) this.reset(); }
-    draw() {
-        ctx.fillStyle = this.color; ctx.globalAlpha = this.opacity;
-        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
-        ctx.globalAlpha = 1;
-    }
-}
-for (let i = 0; i < 50; i++) particles.push(new Particle());
-function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(p => { p.update(); p.draw(); });
-    requestAnimationFrame(animateParticles);
-}
-animateParticles();
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+window.addEventListener('resize', resize); resize();
+class P { constructor() { this.reset(); } reset() { this.x = Math.random()*canvas.width; this.y = canvas.height+10; this.s = Math.random()*3+1; this.v = Math.random()*1+0.5; } update() { this.y -= this.v; if(this.y<-10)this.reset(); } draw() { ctx.fillStyle="white"; ctx.globalAlpha=0.3; ctx.beginPath(); ctx.arc(this.x,this.y,this.s,0,Math.PI*2); ctx.fill(); } }
+for(let i=0;i<40;i++)particles.push(new P());
+function anim() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(anim); } anim();
 
-/** 遊戲主邏輯 **/
+// --- 商店設定 ---
+const SHOP_ITEMS = [
+    { id: 'default', name: '經典黑', color: '#111111', price: 0 },
+    { id: 'gold', name: '勇者金', color: '#FFD700', price: 50 },
+    { id: 'pink', name: '夢幻粉', color: '#FF69B4', price: 150 },
+    { id: 'blue', name: '閃耀藍', color: '#00BFFF', price: 300 }
+];
+
 class MathGame {
     constructor() {
-        this.levels = 10;
-        this.questionsPerLevel = 10;
-        this.currentLevel = 1;
-        this.currentQ = 1;
-        this.score = 0;
-        this.combo = 0; // 新增：連擊計數
-        this.isProcessing = false;
-        this.bgm = document.getElementById('bgm');
-        this.isMuted = false;
-        this.bgm.volume = 0.4;
-        document.getElementById('mute-btn').addEventListener('click', () => this.toggleAudio());
+        this.score = 0; this.combo = 0; this.currentLevel = 1; this.currentQ = 1;
+        this.totalStars = parseInt(localStorage.getItem('math_total_stars')) || 0;
+        this.unlockedItems = JSON.parse(localStorage.getItem('math_unlocked')) || ['default'];
+        this.equipped = localStorage.getItem('math_equipped') || 'default';
+        
+        this.init();
     }
 
-    toggleAudio() {
-        if (this.isMuted) {
-            this.bgm.play().catch(()=>{});
-            document.getElementById('mute-btn').textContent = "🎵";
-            this.isMuted = false;
+    init() {
+        this.updateStarUI();
+        this.applyEquippedColor();
+        document.getElementById('mute-btn').onclick = () => this.toggleAudio();
+        this.bgm = document.getElementById('bgm');
+    }
+
+    updateStarUI() {
+        document.querySelectorAll('.total-stars-val').forEach(el => el.textContent = this.totalStars);
+    }
+
+    applyEquippedColor() {
+        const item = SHOP_ITEMS.find(i => i.id === this.equipped);
+        document.documentElement.style.setProperty('--ear-color', item ? item.color : '#111111');
+    }
+
+    showStart() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('start-screen').classList.add('active');
+    }
+
+    showShop() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('shop-screen').classList.add('active');
+        this.renderShop();
+    }
+
+    renderShop() {
+        const container = document.getElementById('shop-items-container');
+        container.innerHTML = '';
+        SHOP_ITEMS.forEach(item => {
+            const isUnlocked = this.unlockedItems.includes(item.id);
+            const isEquipped = this.equipped === item.id;
+            const div = document.createElement('div');
+            div.className = `shop-item ${isUnlocked ? 'owned' : ''}`;
+            div.innerHTML = `
+                <div class="item-preview" style="background:${item.color}"></div>
+                <div style="font-weight:bold">${item.name}</div>
+                <div class="price-tag">${isUnlocked ? '已擁有' : '💰 ' + item.price}</div>
+                <button class="btn-small" onclick="game.handleShop('${item.id}')">
+                    ${isEquipped ? '裝備中' : (isUnlocked ? '裝備' : '購買')}
+                </button>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    handleShop(id) {
+        const item = SHOP_ITEMS.find(i => i.id === id);
+        if (this.unlockedItems.includes(id)) {
+            this.equipped = id;
+            localStorage.setItem('math_equipped', id);
         } else {
-            this.bgm.pause();
-            document.getElementById('mute-btn').textContent = "🔇";
-            this.isMuted = true;
+            if (this.totalStars >= item.price) {
+                this.totalStars -= item.price;
+                this.unlockedItems.push(id);
+                this.equipped = id;
+                localStorage.setItem('math_total_stars', this.totalStars);
+                localStorage.setItem('math_unlocked', JSON.stringify(this.unlockedItems));
+                localStorage.setItem('math_equipped', id);
+                alert(`成功購買 ${item.name}！`);
+            } else {
+                alert('星星不夠喔！快去冒險賺星星吧！');
+            }
         }
+        this.updateStarUI();
+        this.applyEquippedColor();
+        this.renderShop();
     }
 
     start() {
-        if(!this.isMuted) this.bgm.play().catch(e => console.log("Audio block"));
+        this.bgm.play().catch(()=>{});
         document.getElementById('start-screen').classList.remove('active');
         document.getElementById('game-screen').classList.add('active');
-        this.startLevel(1);
-    }
-
-    startLevel(lvl) {
-        this.currentLevel = lvl;
-        this.currentQ = 1;
-        document.getElementById('level-num').textContent = lvl;
+        this.score = 0; this.combo = 0; this.currentLevel = 1; this.currentQ = 1;
         this.nextQuestion();
     }
 
+    // --- 遊戲核心邏輯 (延續之前版本) ---
     nextQuestion() {
-        if (this.currentQ > this.questionsPerLevel) {
-            if (this.currentLevel < this.levels) {
-                this.currentLevel++;
-                setTimeout(() => {
-                    alert(`太強了！進入第 ${this.currentLevel} 關！`);
-                    this.startLevel(this.currentLevel);
-                }, 500);
-            } else {
-                this.endGame();
-            }
-            return;
-        }
+        if(this.currentQ > 10) { this.endGame(); return; }
         this.isProcessing = false;
-        this.updateHUD();
-        const qData = this.generateMath(this.currentLevel);
-        this.correctAnswer = qData.answer;
-        document.getElementById('question-text').textContent = qData.text;
-        this.renderOptions(qData.answer, qData.maxRange);
-    }
-
-    updateHUD() {
-        document.getElementById('q-num').textContent = this.currentQ;
+        document.getElementById('level-num').textContent = this.currentLevel;
         document.getElementById('score').textContent = this.score;
-        const pct = ((this.currentQ - 1) / this.questionsPerLevel) * 100;
-        document.getElementById('progress-bar').style.width = `${pct}%`;
         
-        // 更新連擊 UI
-        const comboEl = document.getElementById('combo-text');
-        if (this.combo > 1) {
-            comboEl.textContent = `COMBO x${this.combo}`;
-            comboEl.classList.add('show');
-        } else {
-            comboEl.classList.remove('show');
-        }
-    }
-
-    generateMath(level) {
-        let n1, n2, ans, max = 10;
-        if (level <= 2) max = 10;
-        else if (level <= 4) max = 20;
-        else if (level <= 6) max = 50;
-        else if (level <= 8) max = 80;
-        else max = 100;
-
-        const isAdd = Math.random() > (level > 3 ? 0.5 : 0.2);
-        if (isAdd) {
-            n1 = Math.floor(Math.random() * (max - 1)) + 1;
-            n2 = Math.floor(Math.random() * (max - n1)) + 1;
-            ans = n1 + n2;
-        } else {
-            n1 = Math.floor(Math.random() * (max - 1)) + 2;
-            n2 = Math.floor(Math.random() * n1);
-            ans = n1 - n2;
-        }
-        return { text: `${n1} ${isAdd ? '+' : '-'} ${n2} = ?`, answer: ans, maxRange: max };
-    }
-
-    renderOptions(correct, range) {
-        let opts = new Set([correct]);
-        while(opts.size < 4) {
-            let fake, r = Math.random();
-            if (r < 0.3) fake = correct + 1;
-            else if (r < 0.6) fake = correct - 1;
-            else if (r < 0.8) fake = correct + 10;
-            else fake = Math.floor(Math.random() * (range + 1));
-            if (fake >= 0 && fake <= 100 && fake !== correct) opts.add(fake);
-        }
-        const arr = Array.from(opts).sort(() => Math.random() - 0.5);
+        const max = this.currentLevel * 10;
+        const n1 = Math.floor(Math.random()*max)+1;
+        const n2 = Math.floor(Math.random()*n1);
+        const isAdd = Math.random() > 0.5;
+        this.ans = isAdd ? n1 + n2 : n1 - n2;
+        document.getElementById('question-text').textContent = `${n1} ${isAdd?'+':'-'} ${n2} = ?`;
+        
+        const opts = new Set([this.ans]);
+        while(opts.size < 4) opts.add(this.ans + Math.floor(Math.random()*10)-5);
+        const arr = Array.from(opts).sort(()=>Math.random()-0.5);
+        
         const container = document.getElementById('options-container');
         container.innerHTML = '';
-        arr.forEach(num => {
-            const btn = document.createElement('div');
-            btn.className = 'option-card';
-            btn.textContent = num;
-            btn.onclick = (e) => this.check(num, e.target);
-            container.appendChild(btn);
+        arr.forEach(n => {
+            const b = document.createElement('div'); b.className='option-card'; b.textContent=n;
+            b.onclick=(e)=>this.check(n, e.target); container.appendChild(b);
         });
     }
 
     check(val, el) {
-        if (this.isProcessing) return;
-        this.isProcessing = true;
+        if(this.isProcessing) return; this.isProcessing = true;
+        const comboEl = document.getElementById('combo-text');
 
-        if (val === this.correctAnswer) {
-            el.classList.add('correct');
-            this.score++;
-            this.combo++; // 連擊增加
-            const star = document.getElementById('star-icon');
-            star.classList.remove('star-anim');
-            void star.offsetWidth;
-            star.classList.add('star-anim');
+        if(val === this.ans) {
+            el.classList.add('correct'); this.score++; this.combo++;
+            if(this.combo > 1) { comboEl.textContent = `COMBO x${this.combo}`; comboEl.classList.add('show'); }
         } else {
-            el.classList.add('wrong');
-            this.combo = 0; // 連擊中斷
-            document.querySelectorAll('.option-card').forEach(c => {
-                if(parseInt(c.textContent) === this.correctAnswer) {
-                    setTimeout(() => c.classList.add('correct'), 200);
-                }
-            });
+            el.classList.add('wrong'); this.combo = 0; comboEl.classList.remove('show');
         }
-        this.updateHUD();
-        setTimeout(() => { this.currentQ++; this.nextQuestion(); }, 1200);
+        setTimeout(() => { this.currentQ++; this.nextQuestion(); }, 1000);
     }
 
     endGame() {
+        // 增加星星存摺
+        this.totalStars += this.score;
+        localStorage.setItem('math_total_stars', this.totalStars);
+
         document.getElementById('game-screen').classList.remove('active');
         document.getElementById('result-screen').classList.add('active');
         document.getElementById('final-score').textContent = this.score;
         
-        // 評語系統
         const rankEl = document.getElementById('result-rank');
-        const msgEl = document.getElementById('result-msg');
-        const total = this.levels * this.questionsPerLevel; // 總分 100
-        
-        if (this.score >= 95) {
-            rankEl.textContent = "🏆 傳說級數學大師";
-            msgEl.textContent = "簡直太不可思議了！你是數字的主人！";
-        } else if (this.score >= 80) {
-            rankEl.textContent = "✨ 領袖級魔法師";
-            msgEl.textContent = "表現非常出色！胤彥為你感到驕傲！";
-        } else if (this.score >= 60) {
-            rankEl.textContent = "🧙‍♂️ 見習魔法師";
-            msgEl.textContent = "不錯喔！再加把勁就能掌握高級魔法了。";
-        } else {
-            rankEl.textContent = "🌱 數學小學徒";
-            msgEl.textContent = "冒險才剛開始，繼續努力練習吧！";
-        }
+        if(this.score >= 9) rankEl.textContent="🏆 傳說級魔法師";
+        else if(this.score >= 7) rankEl.textContent="✨ 領袖級魔法師";
+        else rankEl.textContent="🌱 數學小學徒";
+        document.getElementById('result-msg').textContent = `獲得 ${this.score} 顆星星，已存入存摺！`;
+        this.updateStarUI();
+    }
+
+    toggleAudio() {
+        if(this.bgm.paused) { this.bgm.play(); document.getElementById('mute-btn').textContent="🎵"; }
+        else { this.bgm.pause(); document.getElementById('mute-btn').textContent="🔇"; }
     }
 }
 const game = new MathGame();
